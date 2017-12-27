@@ -7,12 +7,12 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName)
     return 0;
 }
 
-int main(int argc, char *argv[])
+int insertRow(const char *sql)
 {
     sqlite3 *db;
     char *Error = 0;
     int dbrc;
-    const char *sql;
+   
 
     /* Open database */
     dbrc = sqlite3_open("data.db", &db);
@@ -26,10 +26,6 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "Opened database successfully\n");
     }
-
-    /* Create SQL statement */
-    sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
-          "VALUES (1, 'Cel mai inalt varf muntos din Romania?','Moldoveanu', 'Parang', 'Ineu', 'Omu', 'A' ); ";
 
     /* Execute SQL statement */
     dbrc = sqlite3_exec(db, sql, callback, 0, &Error);
@@ -45,4 +41,19 @@ int main(int argc, char *argv[])
     }
     sqlite3_close(db);
     return 0;
+}
+
+int populateDatabase()
+{
+ const char *sql;
+ /* Create SQL statement */
+    sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (1, 'Cel mai inalt varf muntos din Romania?','Moldoveanu', 'Parang', 'Ineu', 'Omu', 'A' ); ";
+   insertRow(sql);    
+   return 0;   
+}
+
+int main(int argc, char *argv[])
+{
+    populateDatabase();
 }
