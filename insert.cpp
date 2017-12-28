@@ -1,28 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
+#include "dbfunctions.h"
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName)
-{
-    return 0;
-}
-
-sqlite3 * openDatabase()
-{
-    int rc;
-    sqlite3 *db;
-   /* Open database */
-   rc = sqlite3_open("data.db", &db);
-   
-   if( rc ) {
-      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-     return NULL;
-   } else {
-      fprintf(stderr, "Opened database successfully\n");
-      return db;
-   }
-
-}
 
 int insertRow(const char *sql, sqlite3 *db)
 {
@@ -57,15 +37,4 @@ int populateDatabase(sqlite3 *db)
    return 0;   
 }
 
-void closeDatabase(sqlite3 *db)
-{
-    sqlite3_close(db);
-}
 
-int main(int argc, char *argv[])
-{
-    sqlite3 *db =openDatabase();
-    populateDatabase(db);
-    closeDatabase(db);
-
-}

@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <sqlite3.h>
+#include "dbfunctions.h"
+
 
 int createDatabase()
 {
@@ -19,9 +21,4 @@ int createDatabase()
         fprintf(stderr, "Opened database successfully\n");
     }
     sqlite3_close(db);
-}
-int main(int argc, char *argv[])
-{
-    createDatabase();
-    return 0;
 }

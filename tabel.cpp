@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 #include <string.h>
+#include "dbfunctions.h"
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
       return 0;
-    }
+}
     
 
 sqlite3 * openDatabase()
@@ -64,10 +65,3 @@ void closeDatabase(sqlite3 *db)
     sqlite3_close(db);
 }
 
-int main(int argc, char *argv[])
-{
-     sqlite3 *db =openDatabase();
-      createTable(db);
-      closeDatabase(db);
-      return 0;
-}
