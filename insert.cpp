@@ -49,7 +49,10 @@ int populateDatabase()
  /* Create SQL statement */
     sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
           "VALUES (1, 'Cel mai inalt varf muntos din Romania?','Moldoveanu', 'Parang', 'Ineu', 'Omu', 'A' ); ";
-   insertRow(sql);    
+   insertRow(sql);
+    sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (2, 'Ultimul rege al Romaniei?','Carol I', 'Carol II', 'Mihai', 'Ferdinand', 'C' ); ";    
+    insertRow(sql);
    return 0;   
 }
 
