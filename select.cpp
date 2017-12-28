@@ -3,22 +3,28 @@
 #include <sqlite3.h> 
 #include <string.h>
 
-int selectDatabase(int number)
+sqlite3 * openDatabase()
 {
-sqlite3 *db;
-   char *zErrMsg = 0;
-   int rc;
-
-
+    int rc;
+    sqlite3 *db;
    /* Open database */
    rc = sqlite3_open("data.db", &db);
    
    if( rc ) {
       fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-      return(0);
-   }/* else {
+     return NULL;
+   } else {
       fprintf(stderr, "Opened database successfully\n");
-   }*/
+      return db;
+   }
+
+}
+int selectDatabase(int number, sqlite3 *db)
+{
+
+   char *zErrMsg = 0;
+   int rc;
+
 
    /* Create SQL statement */
    sqlite3_stmt *stmt;
@@ -36,7 +42,7 @@ if (rc == SQLITE_ROW) {
                 c  = sqlite3_column_text (stmt, 4);
                 d  = sqlite3_column_text (stmt, 5);
                 correct = sqlite3_column_text (stmt,6);
-                printf ("%d.%s\nA:%s\nB:%s\nC:%s\nD:%s\n\n\n", id, question,a,b,c,d,correct);
+                printf ("%d.%s\nA:%s\nB:%s\nC:%s\nD:%s\n\n\n", id, question,a,b,c,d);
             }
             else
             {
@@ -45,17 +51,18 @@ if (rc == SQLITE_ROW) {
 
 
 
-sqlite3_finalize(stmt);
-   
+    sqlite3_finalize(stmt);  
+}
 
-  
-   
-   
-   sqlite3_close(db);
+void closeDatabase(sqlite3 *db)
+{
+    sqlite3_close(db);
 }
 
 int main(int argc, char* argv[]) {
-   selectDatabase(1);
-   selectDatabase(3);
+   sqlite3 *db= openDatabase();
+   selectDatabase(1,db);
+   selectDatabase(2,db);
+   closeDatabase(db);
    return 0;
 }

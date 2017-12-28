@@ -6,26 +6,32 @@
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
       return 0;
-}
-int createTable()
+    }
+    
+
+sqlite3 * openDatabase()
 {
-      sqlite3 *db;
+    int rc;
+    sqlite3 *db;
+   /* Open database */
+   rc = sqlite3_open("data.db", &db);
+   
+   if( rc ) {
+      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+     return NULL;
+   } else {
+      fprintf(stderr, "Opened database successfully\n");
+      return db;
+   }
+
+}
+
+int createTable(sqlite3 *db)
+{
+      
       char *Error = 0;
       int dbrc;
       const char *sql;
-
-      /* Open database */
-      dbrc = sqlite3_open("data.db", &db);
-
-      if (dbrc)
-      {
-            fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-            return (0);
-      }
-      else
-      {
-            fprintf(stdout, "Opened database successfully\n");
-      }
 
       /* Create SQL statement */
       sql = "CREATE TABLE QUESTIONS("
@@ -49,12 +55,19 @@ int createTable()
       {
             fprintf(stdout, "Table created successfully\n");
       }
-      sqlite3_close(db);
+      
       return 0;
+}
+
+void closeDatabase(sqlite3 *db)
+{
+    sqlite3_close(db);
 }
 
 int main(int argc, char *argv[])
 {
-      createTable();
+     sqlite3 *db =openDatabase();
+      createTable(db);
+      closeDatabase(db);
       return 0;
 }
