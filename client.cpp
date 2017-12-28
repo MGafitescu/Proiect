@@ -26,7 +26,7 @@ int main (int argc, char *argv[])
   struct sockaddr_in server;	// structura folosita pentru conectare 
   		// mesajul trimis
   int nr=0;
-  char buf[10];
+  char answer;
 
   /* exista toate argumentele in linia de comanda? */
   if (argc != 3)
@@ -63,14 +63,13 @@ int main (int argc, char *argv[])
   /* citirea mesajului */
   printf ("[client]Introduceti un numar: ");
   fflush (stdout);
-  read (0, buf, sizeof(buf));
-  nr=atoi(buf);
+  read (0, &answer, sizeof(char));
   //scanf("%d",&nr);
   
-  printf("[client] Am citit %d\n",nr);
+  printf("[client] Am citit %c\n",answer);
 
   /* trimiterea mesajului la server */
-  if (write (sd,&nr,sizeof(int)) <= 0)
+  if (write (sd,&answer,sizeof(char)) <= 0)
     {
       perror ("[client]Eroare la write() spre server.\n");
       return errno;
@@ -78,13 +77,13 @@ int main (int argc, char *argv[])
 
   /* citirea raspunsului dat de server 
      (apel blocant pina cind serverul raspunde) */
-  if (read (sd, &nr,sizeof(int)) < 0)
+  if (read (sd, &answer,sizeof(char)) < 0)
     {
       perror ("[client]Eroare la read() de la server.\n");
       return errno;
     }
   /* afisam mesajul primit */
-  printf ("[client]Mesajul primit este: %d\n", nr);
+  printf ("[client]Mesajul primit este: %c\n", answer);
 
   /* inchidem conexiunea, am terminat */
   close (sd);

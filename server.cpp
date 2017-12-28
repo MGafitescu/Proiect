@@ -25,11 +25,27 @@
 /* codul de eroare returnat de anumite apeluri */
 extern int errno;
 
-typedef struct thData{
-	int idThread; //id-ul thread-ului tinut in evidenta de acest program
-	int cl; //descriptorul intors de accept
-}thData;
+class thData{
+    
+public:
+    int idThread; //id-ul thread-ului tinut in evidenta de acest program
+    int cl; //descriptorul intors de accept
+public:
+    thData(int idThread, int cl);
+    thData(thData* ptr);
+        
+};
+thData::thData(int idThread, int cl)
+{
+    this->idThread=idThread;
+    this->cl=cl;
+}
 
+thData::thData(thData* ptr)
+{
+    this->idThread=ptr->idThread;
+    this->cl=ptr->cl;
+}
 static void *treat(void *); /* functia executata de fiecare thread ce realizeaza comunicarea cu clientii */
 void raspunde(void *);
 
@@ -83,7 +99,6 @@ int main ()
   while (1)
     {
       int client;
-      thData * td; //parametru functia executata de thread     
       socklen_t length = sizeof (from);
 
       printf ("[server]Asteptam la portul %d...\n",PORT);
@@ -99,25 +114,21 @@ int main ()
 	
         /* s-a realizat conexiunea, se astepta mesajul */
     
-	int idThread; //id-ul threadului
-	int cl; //descriptorul intors de accept
+	
 
-	td=(struct thData*)malloc(sizeof(struct thData));	
-	td->idThread=i++;
-	td->cl=client;
-
-	pthread_create(&th[i], NULL, &treat, td);	      
+	thData td(i++, client);
+    thData *ptr=&td;
+	pthread_create(&th[i], NULL, &treat, ptr);	      
 				
 	}//while    
 };				
 static void *treat(void * arg)
 {		
-		struct thData tdL; 
-		tdL= *((struct thData*)arg);	
-		printf ("[thread]- %d - Asteptam mesajul...\n", tdL.idThread);
+		thData td((thData*)arg);
+		printf ("[thread]- %d - Asteptam mesajul...\n", td.idThread);
 		fflush (stdout);		 
-		pthread_detach(pthread_self());		
-		raspunde((struct thData*)arg);
+        pthread_detach(pthread_self());		
+		raspunde((thData*)arg);
 		/* am terminat cu acest client, inchidem conexiunea */
 		close ((intptr_t)arg);
 		return(NULL);	
@@ -128,24 +139,23 @@ static void *treat(void * arg)
 void raspunde(void *arg)
 {
         int nr, i=0;
-	struct thData tdL; 
-	tdL= *((struct thData*)arg);
-	if (read (tdL.cl, &nr,sizeof(int)) <= 0)
+        char answer;
+	thData tdL((thData*)arg);
+	if (read (tdL.cl, &answer,sizeof(char)) <= 0)
 			{
 			  printf("[Thread %d]\n",tdL.idThread);
 			  perror ("Eroare la read() de la client.\n");
 			
 			}
 	
-	printf ("[Thread %d]Mesajul a fost receptionat...%d\n",tdL.idThread, nr);
+	printf ("[Thread %d]Mesajul a fost receptionat...%c\n",tdL.idThread, answer);
 		      
-		      /*pregatim mesajul de raspuns */
-		      nr++;      
-	printf("[Thread %d]Trimitem mesajul inapoi...%d\n",tdL.idThread, nr);
+    answer='Y';   
+	printf("[Thread %d]Trimitem mesajul inapoi...%c\n",tdL.idThread, answer);
 		      
 		      
 		      /* returnam mesajul clientului */
-	 if (write (tdL.cl, &nr, sizeof(int)) <= 0)
+	 if (write (tdL.cl, &answer, sizeof(char)) <= 0)
 		{
 		 printf("[Thread %d] ",tdL.idThread);
 		 perror ("[Thread]Eroare la write() catre client.\n");
