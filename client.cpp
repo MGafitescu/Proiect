@@ -25,7 +25,6 @@ int main (int argc, char *argv[])
   int sd;			// descriptorul de socket
   struct sockaddr_in server;	// structura folosita pentru conectare 
   		// mesajul trimis
-  int nr=0;
   char answer;
 
   /* exista toate argumentele in linia de comanda? */

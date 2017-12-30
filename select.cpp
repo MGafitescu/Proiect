@@ -2,20 +2,8 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 #include <string.h>
+#include "select.h"
 
-class Question
-{
-  private:
-    int id;
-    char *ques, *a, *b, *c, *d;
-    char *correct;
-
-  public:
-    Question();
-    Question(int id, char *question, char *a, char *b, char *c, char *d,
-             char *correct);
-    void Print();
-};
 
 Question::Question()
 {
@@ -46,6 +34,22 @@ void Question::Print()
     else
         printf("%d.%s\nA:%s\nB:%s\nC:%s\nD:%s\n\n\n", id, ques, a, b, c, d);
 }
+    
+    char* Question::Prepare()
+    {
+         
+         char *question=ques;
+        strcat(question,"~~");
+        strcat(question,a);
+        strcat(question,"~~");
+         strcat(question,b);
+        strcat(question,"~~");
+         strcat(question,c);
+        strcat(question,"~~");
+         strcat(question,d);
+         return question;
+
+    }
 
 sqlite3 *openDatabase()
 {
@@ -105,6 +109,7 @@ void closeDatabase(sqlite3 *db)
     sqlite3_close(db);
 }
 
+/*
 int main(int argc, char *argv[])
 {
     sqlite3 *db = openDatabase();
@@ -112,4 +117,4 @@ int main(int argc, char *argv[])
     q.Print();
     closeDatabase(db);
     return 0;
-}
+}*/

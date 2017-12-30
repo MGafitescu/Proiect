@@ -18,7 +18,7 @@
 #include <signal.h>
 #include <pthread.h>
 #include <arpa/inet.h>
-
+#include "select.h"
 /* portul folosit */
 #define PORT 2908
 
@@ -140,7 +140,13 @@ void raspunde(void *arg)
 {
         int nr, i=0;
         char answer;
-	thData tdL((thData*)arg);
+  thData tdL((thData*)arg);
+    
+    sqlite3 * db=openDatabase();
+    Question q=selectDatabase(2,db);
+    char* question=q.Prepare();
+    printf("%s\n",question);
+    closeDatabase(db);
 	if (read (tdL.cl, &answer,sizeof(char)) <= 0)
 			{
 			  printf("[Thread %d]\n",tdL.idThread);
@@ -161,6 +167,6 @@ void raspunde(void *arg)
 		 perror ("[Thread]Eroare la write() catre client.\n");
 		}
 	else
-		printf ("[Thread %d]Mesajul a fost trasmis cu succes.\n",tdL.idThread);	
-
+    printf ("[Thread %d]Mesajul a fost trasmis cu succes.\n",tdL.idThread);	
+  
 }
