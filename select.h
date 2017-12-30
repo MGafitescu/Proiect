@@ -13,6 +13,7 @@ public:
              char *correct);
     void Print();
     char* Prepare();
+    char Verify(char ans);
 };
 
 

@@ -20,6 +20,17 @@ extern int errno;
 /* portul de conectare la server*/
 int port;
 
+void showQuestion(char question[1000])
+{
+  for(int i=0;i<strlen(question);i++)
+  {
+    if(question[i]=='~')
+    printf("\n");
+    else
+    printf("%c",question[i]);
+  }
+   printf("\n");
+}
 int main (int argc, char *argv[])
 {
   int sd;			// descriptorul de socket
@@ -59,13 +70,25 @@ int main (int argc, char *argv[])
       return errno;
     }
 
+    int nr;
+    char question[1000];
+    if (read (sd, &nr,sizeof(int)) < 0)
+    {
+      perror ("[client]Eroare la read() de la server.\n");
+      return errno;
+    }
+    if (read (sd, question,nr) < 0)
+    {
+      perror ("[client]Eroare la read() de la server.\n");
+      return errno;
+    }
+
+   showQuestion(question);
   /* citirea mesajului */
-  printf ("[client]Introduceti un numar: ");
+  printf ("Care crezi ca e raspunsul?\n");
   fflush (stdout);
   read (0, &answer, sizeof(char));
-  //scanf("%d",&nr);
-  
-  printf("[client] Am citit %c\n",answer);
+
 
   /* trimiterea mesajului la server */
   if (write (sd,&answer,sizeof(char)) <= 0)
@@ -73,16 +96,17 @@ int main (int argc, char *argv[])
       perror ("[client]Eroare la write() spre server.\n");
       return errno;
     }
-
-  /* citirea raspunsului dat de server 
-     (apel blocant pina cind serverul raspunde) */
-  if (read (sd, &answer,sizeof(char)) < 0)
+  char right;  
+  if (read (sd, &right,sizeof(char)) < 0)
     {
       perror ("[client]Eroare la read() de la server.\n");
       return errno;
     }
-  /* afisam mesajul primit */
-  printf ("[client]Mesajul primit este: %c\n", answer);
+   if(right=='Y')
+   printf("Raspunsul este corect.\n");
+   else
+   printf("Raspunsul este gresit.\n"); 
+ 
 
   /* inchidem conexiunea, am terminat */
   close (sd);

@@ -39,17 +39,24 @@ void Question::Print()
     {
          
          char *question=ques;
-        strcat(question,"~~");
+        strcat(question,"~A.");
         strcat(question,a);
-        strcat(question,"~~");
+        strcat(question,"~B.");
          strcat(question,b);
-        strcat(question,"~~");
+        strcat(question,"~C.");
          strcat(question,c);
-        strcat(question,"~~");
+        strcat(question,"~D.");
          strcat(question,d);
          return question;
-
-    }
+        }
+        
+char Question::Verify(char ans)
+{
+    if(this->correct[0]==ans)
+    return 'Y';
+    else
+    return 'N';
+}
 
 sqlite3 *openDatabase()
 {

@@ -125,7 +125,7 @@ int main ()
 static void *treat(void * arg)
 {		
 		thData td((thData*)arg);
-		printf ("[thread]- %d - Asteptam mesajul...\n", td.idThread);
+		printf ("Utilizatorul %d este conectat \n", td.idThread);
 		fflush (stdout);		 
         pthread_detach(pthread_self());		
 		raspunde((thData*)arg);
@@ -138,35 +138,42 @@ static void *treat(void * arg)
 
 void raspunde(void *arg)
 {
-        int nr, i=0;
+        int nr=0, i=0;
         char answer;
   thData tdL((thData*)arg);
     
     sqlite3 * db=openDatabase();
     Question q=selectDatabase(2,db);
-    char* question=q.Prepare();
-    printf("%s\n",question);
-    closeDatabase(db);
+    char* question;
+    question=q.Prepare();
+    char question1[1000];
+    sprintf(question1,"%s",question);
+    nr=strlen(question1);
+    if (write (tdL.cl, &nr, sizeof(int)) <= 0)
+		{
+		 printf("[Thread %d] ",tdL.idThread);
+		 perror ("[Thread]Eroare la write() catre client.\n");
+		}
+	
+    if (write (tdL.cl, question1, nr) <= 0)
+		{
+		 printf("[Thread %d] ",tdL.idThread);
+		 perror ("[Thread]Eroare la write() catre client.\n");
+		}
+	
 	if (read (tdL.cl, &answer,sizeof(char)) <= 0)
 			{
 			  printf("[Thread %d]\n",tdL.idThread);
 			  perror ("Eroare la read() de la client.\n");
 			
 			}
-	
-	printf ("[Thread %d]Mesajul a fost receptionat...%c\n",tdL.idThread, answer);
-		      
-    answer='Y';   
-	printf("[Thread %d]Trimitem mesajul inapoi...%c\n",tdL.idThread, answer);
-		      
-		      
-		      /* returnam mesajul clientului */
-	 if (write (tdL.cl, &answer, sizeof(char)) <= 0)
+  printf("Raspunsul utilizatorului %d: %c\n",tdL.idThread,answer);
+  char right=q.Verify(answer);
+  if (write (tdL.cl, &right,sizeof(char)) <= 0)
 		{
 		 printf("[Thread %d] ",tdL.idThread);
 		 perror ("[Thread]Eroare la write() catre client.\n");
 		}
-	else
-    printf ("[Thread %d]Mesajul a fost trasmis cu succes.\n",tdL.idThread);	
+	 closeDatabase(db);
   
 }
