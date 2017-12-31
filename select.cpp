@@ -38,15 +38,18 @@ void Question::Print()
     char* Question::Prepare()
     {
          
-         char *question=ques;
+         char *question=NULL;
+         question=new char[1000];
+         strcpy(question,this->ques);
         strcat(question,"~A.");
-        strcat(question,a);
+        strcat(question,this->a);
         strcat(question,"~B.");
-         strcat(question,b);
+         strcat(question,this->b);
         strcat(question,"~C.");
-         strcat(question,c);
+         strcat(question,this->c);
         strcat(question,"~D.");
-         strcat(question,d);
+         strcat(question,this->d);
+         strcat(question,"\0");
          return question;
         }
         

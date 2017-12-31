@@ -20,9 +20,10 @@ extern int errno;
 /* portul de conectare la server*/
 int port;
 
-void showQuestion(char question[1000])
+void showQuestion(char question[1000],int nr)
 {
-  for(int i=0;i<strlen(question);i++)
+  
+  for(int i=0;i<nr;i++)
   {
     if(question[i]=='~')
     printf("\n");
@@ -83,7 +84,7 @@ int main (int argc, char *argv[])
       return errno;
     }
 
-   showQuestion(question);
+   showQuestion(question,nr);
   /* citirea mesajului */
   printf ("Care crezi ca e raspunsul?\n");
   fflush (stdout);

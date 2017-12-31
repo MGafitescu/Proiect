@@ -24,7 +24,7 @@
 
 /* codul de eroare returnat de anumite apeluri */
 extern int errno;
-
+sqlite3 * db;
 class thData{
     
 public:
@@ -58,7 +58,7 @@ int main ()
   int pid;
   pthread_t th[100];    //Identificatorii thread-urilor care se vor crea
 	int i=0;
-  
+  db=openDatabase();
 
   /* crearea unui socket */
   if ((sd = socket (AF_INET, SOCK_STREAM, 0)) == -1)
@@ -120,8 +120,11 @@ int main ()
     thData *ptr=&td;
 	pthread_create(&th[i], NULL, &treat, ptr);	      
 				
-	}//while    
+}//while   
+
+   
 };				
+
 static void *treat(void * arg)
 {		
 		thData td((thData*)arg);
@@ -142,10 +145,11 @@ void raspunde(void *arg)
         char answer;
   thData tdL((thData*)arg);
     
-    sqlite3 * db=openDatabase();
-    Question q=selectDatabase(2,db);
+    
+    Question q=selectDatabase((tdL.idThread)%2+1,db);
     char* question;
     question=q.Prepare();
+    strcat(question,"\0");
     char question1[1000];
     sprintf(question1,"%s",question);
     nr=strlen(question1);
@@ -174,6 +178,5 @@ void raspunde(void *arg)
 		 printf("[Thread %d] ",tdL.idThread);
 		 perror ("[Thread]Eroare la write() catre client.\n");
 		}
-	 closeDatabase(db);
-  
+	 
 }
