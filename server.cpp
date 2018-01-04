@@ -18,13 +18,17 @@
 #include <signal.h>
 #include <pthread.h>
 #include <arpa/inet.h>
+#include <algorithm>    
+#include <vector>       
+#include <ctime>        
+#include <cstdlib>
 #include "select.h"
 /* portul folosit */
-#define PORT 2908
+#define PORT 2907
 
 /* codul de eroare returnat de anumite apeluri */
 extern int errno;
-sqlite3 *db;
+sqlite3* db;
 class thData
 {
 
@@ -95,6 +99,9 @@ int main()
     perror("[server]Eroare la listen().\n");
     return errno;
   }
+
+   std::srand ( unsigned ( std::time(0) ) );
+  
   /* servim in mod concurent clientii...folosind thread-uri */
   while (1)
   {
@@ -136,10 +143,15 @@ static void *treat(void *arg)
 void raspunde(void *arg)
 {
   int nr = 0, i = 0;
+  int index = 5;
   char answer;
   thData tdL((thData *)arg);
-
-  int index = 5, punctaj = 0;
+  int ordine[100];
+  for(int i=0;i<index;i++)
+   ordine[i]=i+1;
+  
+   std::random_shuffle(ordine, ordine+index-1);
+  int punctaj = 0;
   char question1[1000];
   char *question;
   if (write(tdL.cl, &index, sizeof(int)) <= 0)
@@ -148,9 +160,9 @@ void raspunde(void *arg)
     perror("[Thread]Eroare la write() catre client.\n");
   }
 
-  for (int i = 1; i <= index; i++)
+  for (int i = 0; i<index; i++)
   {
-    Question q = selectDatabase(i, db);
+    Question q = selectDatabase(ordine[i], db);
     question = q.Prepare();
     strcat(question, "\0");
 
