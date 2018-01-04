@@ -30,6 +30,7 @@
 extern int errno;
 int curent=0;
 sqlite3* db;
+int done=0;
 class thData
 {
 
@@ -109,6 +110,9 @@ int main()
   /* servim in mod concurent clientii...folosind thread-uri */
   while (1)
   {
+  if(done==i-1)
+    i=0;
+    printf("Gata jocul");
     int client;
     socklen_t length = sizeof(from);
 
@@ -117,12 +121,12 @@ int main()
 
     //client= malloc(sizeof(int));
     /* acceptam un client (stare blocanta pina la realizarea conexiunii) */
+    
     if ((client = accept(sd, (struct sockaddr *)&from, &length)) < 0)
     {
       perror("[server]Eroare la accept().\n");
       continue;
     }
-
     /* s-a realizat conexiunea, se astepta mesajul */
     char username[20];
     if (read(client, username, 20) <= 0)
@@ -130,11 +134,14 @@ int main()
     
       perror("Eroare la read() de la client.\n");
     }
+    printf("i a ajuns %d",i);
     thData td(i++, client,username);
     thData *ptr = &td;
     pthread_create(&th[i], NULL, &treat, ptr);
-    printf("Am %d thread-uri\n",i);
+
+    
   } //while
+
 };
 
 static void *treat(void *arg)
@@ -212,6 +219,7 @@ void raspunde(void *arg)
       perror("[Thread]Eroare la write() catre client.\n");
     }
   }
+  done++;
   if (write(tdL.cl, &punctaj, sizeof(int)) <= 0)
     {
       printf("[Thread %d] ", tdL.idThread);
