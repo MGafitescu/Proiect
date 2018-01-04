@@ -71,7 +71,15 @@ int main (int argc, char *argv[])
       return errno;
     }
 
-    int nr;
+    int nr,index,punctaj;
+    char enter;
+    if (read (sd, &index,sizeof(int)) < 0)
+    {
+      perror ("[client]Eroare la read() de la server.\n");
+      return errno;
+    }
+    for(int i=1;i<=index;i++)
+    {
     char question[1000];
     if (read (sd, &nr,sizeof(int)) < 0)
     {
@@ -89,6 +97,7 @@ int main (int argc, char *argv[])
   printf ("Care crezi ca e raspunsul?\n");
   fflush (stdout);
   read (0, &answer, sizeof(char));
+  read (0,&enter, sizeof(char));
 
 
   /* trimiterea mesajului la server */
@@ -104,11 +113,18 @@ int main (int argc, char *argv[])
       return errno;
     }
    if(right=='Y')
-   printf("Raspunsul este corect.\n");
+   printf("Raspunsul este corect.\n\n");
    else
-   printf("Raspunsul este gresit.\n"); 
- 
+   printf("Raspunsul este gresit.\n\n"); 
+    }
 
+
+    if (read (sd, &punctaj,sizeof(int)) < 0)
+    {
+      perror ("[client]Eroare la read() de la server.\n");
+      return errno;
+    }
+    printf("Jocul este gata.Ai obtinut %d din %d puncte.Bravo!\n",punctaj,index);
   /* inchidem conexiunea, am terminat */
   close (sd);
 }

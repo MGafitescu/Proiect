@@ -34,6 +34,15 @@ int populateDatabase(sqlite3 *db)
     sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
           "VALUES (2, 'Ultimul rege al Romaniei?','Carol I', 'Carol II', 'Mihai', 'Ferdinand', 'C' ); ";    
     insertRow(sql,db);
+    sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (3, 'Unele luni au 31 de zile.Unele luni au 30 de zile.Cate luni au 28 de zile?','12', '1', '6', '2', 'A' ); ";    
+    insertRow(sql,db);
+    sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (4, 'Portugheza este vorbita in?','Columbia', 'Argentina', 'Ecuador', 'Brazilia', 'D' ); ";    
+    insertRow(sql,db);
+    sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (5, 'Cati dinti are o persoana adulta?','28', '42', '32', '34', 'C' ); ";    
+    insertRow(sql,db);
    return 0;   
 }
 
