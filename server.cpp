@@ -36,20 +36,23 @@ class thData
 public:
   int idThread; //id-ul thread-ului tinut in evidenta de acest program
   int cl;       //descriptorul intors de accept
+  char username[20];
 public:
-  thData(int idThread, int cl);
+  thData(int idThread, int cl, char username[20]);
   thData(thData *ptr);
 };
-thData::thData(int idThread, int cl)
+thData::thData(int idThread, int cl, char username[20])
 {
   this->idThread = idThread;
   this->cl = cl;
+  strcpy(this->username,username);
 }
 
 thData::thData(thData *ptr)
 {
   this->idThread = ptr->idThread;
   this->cl = ptr->cl;
+  strcpy(this->username,ptr->username);
 }
 static void *treat(void *); /* functia executata de fiecare thread ce realizeaza comunicarea cu clientii */
 void raspunde(void *);
@@ -121,8 +124,13 @@ int main()
     }
 
     /* s-a realizat conexiunea, se astepta mesajul */
-
-    thData td(i++, client);
+    char username[20];
+    if (read(client, username, 20) <= 0)
+    {
+    
+      perror("Eroare la read() de la client.\n");
+    }
+    thData td(i++, client,username);
     thData *ptr = &td;
     pthread_create(&th[i], NULL, &treat, ptr);
     printf("Am %d thread-uri\n",i);
@@ -132,7 +140,7 @@ int main()
 static void *treat(void *arg)
 {
   thData td((thData *)arg);
-  printf("Utilizatorul %d este conectat \n", td.idThread);
+  printf("Utilizatorul %s este conectat \n", td.username);
   fflush(stdout);
   pthread_detach(pthread_self());
   raspunde((thData *)arg);
@@ -194,7 +202,7 @@ void raspunde(void *arg)
       printf("[Thread %d]\n", tdL.idThread);
       perror("Eroare la read() de la client.\n");
     }
-    printf("Raspunsul utilizatorului %d: %c\n", tdL.idThread, answer);
+    printf("Raspunsul utilizatorului %s: %c\n", tdL.username, answer);
     char right = q.Verify(answer);
     if (right == 'Y')
       punctaj = punctaj + 1;

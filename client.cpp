@@ -70,7 +70,14 @@ int main (int argc, char *argv[])
       perror ("[client]Eroare la connect().\n");
       return errno;
     }
-
+    char username[20];
+    printf("Bun venit!Introdu username: \n");
+    scanf("%s",username);
+    if (write (sd,username,20) <= 0)
+    {
+      perror ("[client]Eroare la write() spre server.\n");
+      return errno;
+    }
     int nr,index,punctaj;
     char enter;
     if (read (sd, &index,sizeof(int)) < 0)
@@ -124,7 +131,7 @@ int main (int argc, char *argv[])
       perror ("[client]Eroare la read() de la server.\n");
       return errno;
     }
-    printf("Jocul este gata.Ai obtinut %d din %d puncte.Bravo!\n",punctaj,index);
+    printf("Jocul este gata.%s, ai obtinut %d din %d puncte.Bravo!\n",username,punctaj,index);
   /* inchidem conexiunea, am terminat */
   close (sd);
 }
