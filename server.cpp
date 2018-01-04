@@ -28,6 +28,7 @@
 
 /* codul de eroare returnat de anumite apeluri */
 extern int errno;
+int curent=0;
 sqlite3* db;
 class thData
 {
@@ -142,26 +143,34 @@ static void *treat(void *arg)
 
 void raspunde(void *arg)
 {
-  int nr = 0, i = 0;
+  int nr = 0, start= 0,number;
   int index = 5;
   char answer;
   thData tdL((thData *)arg);
   int ordine[100];
-  for(int i=0;i<index;i++)
+  for( int i=0;i<index;i++)
    ordine[i]=i+1;
   
    std::random_shuffle(ordine, ordine+index-1);
   int punctaj = 0;
   char question1[1000];
   char *question;
-  if (write(tdL.cl, &index, sizeof(int)) <= 0)
+  if(tdL.idThread!=0)
+  start=curent;
+ number=index-start;
+  if (write(tdL.cl, &number, sizeof(int)) <= 0)
   {
     printf("[Thread %d] ", tdL.idThread);
     perror("[Thread]Eroare la write() catre client.\n");
   }
+ 
+  
+   
 
-  for (int i = 0; i<index; i++)
+  for (int i = start; i<index; i++)
   {
+     if(tdL.idThread==0)
+    curent=i;
     Question q = selectDatabase(ordine[i], db);
     question = q.Prepare();
     strcat(question, "\0");
