@@ -31,6 +31,7 @@ extern int errno;
 int curent=0;
 sqlite3* db;
 int done=0;
+int players=0;
 class thData
 {
 
@@ -110,9 +111,10 @@ int main()
   /* servim in mod concurent clientii...folosind thread-uri */
   while (1)
   {
-  if(done==i-1)
-    i=0;
+  if(done==players)
+   { i=0;
     printf("Gata jocul");
+   }
     int client;
     socklen_t length = sizeof(from);
 
@@ -128,13 +130,19 @@ int main()
       continue;
     }
     /* s-a realizat conexiunea, se astepta mesajul */
+    players++;
     char username[20];
-    if (read(client, username, 20) <= 0)
-    {
-    
+    int varread=read(client, username, 20) ;
+    if (varread<0)
+    { 
       perror("Eroare la read() de la client.\n");
     }
-    printf("i a ajuns %d",i);
+    else 
+      if(varread==0)
+      {
+        printf("Utilizatorul %s s-a deconectat",username);
+        players--;
+      }
     thData td(i++, client,username);
     thData *ptr = &td;
     pthread_create(&th[i], NULL, &treat, ptr);
@@ -204,11 +212,20 @@ void raspunde(void *arg)
       perror("[Thread]Eroare la write() catre client.\n");
     }
 
-    if (read(tdL.cl, &answer, sizeof(char)) <= 0)
-    {
+     int varread=read(tdL.cl, &answer, sizeof(char)) ;
+    if (varread<0)
+    { 
       printf("[Thread %d]\n", tdL.idThread);
       perror("Eroare la read() de la client.\n");
     }
+    else 
+      if(varread==0)
+      {
+
+        printf("Utilizatorul %s s-a deconectat",tdL.username);
+        players--;
+        pthread_exit(NULL);
+      }
     printf("Raspunsul utilizatorului %s: %c\n", tdL.username, answer);
     char right = q.Verify(answer);
     if (right == 'Y')

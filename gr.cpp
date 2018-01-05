@@ -9,7 +9,8 @@ void login(tgui::EditBox::Ptr username)
 
 void login1()
 {
-printf("Merge\n");
+    printf("Apasat");
+logged=2;
 }
 void loadWidgets( tgui::Gui& gui )
 {
@@ -106,6 +107,9 @@ void loadWidgets2( tgui::Gui& gui, char* intrebare, char* a, char* b, char* c , 
 
     // Call the login function when the button is pressed
     button1->connect("pressed", login1);
+    button2->connect("pressed", login1);
+    button3->connect("pressed", login1);
+    button4->connect("pressed", login1);
 }
 
 int main()
@@ -142,18 +146,22 @@ int main()
                 gui.setView(window.getView());
             }
 
-            // Pass the event to all the widgets
-            gui.handleEvent(event);
-        }
-
-        window.clear();
-        char intrebare[100]="Intrebare";
+            char intrebare[100]="Intrebare1";
         char a[100]="A";
         char b[100]="B";
         char c[100]="C";
         char d[100]="D";
         if(logged==1)
         loadWidgets2(gui,intrebare,a,b,c,d);
+        strcpy(intrebare,"Intrebare 2");
+        if(logged==2)
+      loadWidgets2(gui,intrebare,a,b,c,d);
+            // Pass the event to all the widgets
+            gui.handleEvent(event);
+        }
+
+        window.clear();
+        
         // Draw all created widgets
         gui.draw();
 
