@@ -23,12 +23,15 @@
 /* codul de eroare returnat de anumite apeluri */
 extern int errno;
 int curent = 1;
+int total = 10;
+int ind = 5;
 sqlite3 *db;
 int done = 0, over = 0;
 int players = 0, win = 0;
 char winner[20];
 std::deque<Player> users;
-
+int ordine[100];
+   
 static void *
 treat(void
       *); /* functia executata de fiecare thread ce realizeaza comunicarea
@@ -106,6 +109,8 @@ int main()
     }
 
     std::srand(unsigned(std::time(0)));
+    for (int i = 0; i < total; i++) ordine[i] = i + 1;
+    std::random_shuffle(ordine, ordine + total - 1);
 
     /* servim in mod concurent clientii...folosind thread-uri */
     while (1)
@@ -170,26 +175,22 @@ static void *treat(void *arg)
 void raspunde(void *arg)
 {
     int nr = 0, start = 0, number;
-    int total = 10;
-    int index = 5;
+
     char answer;
     thData tdL((thData *)arg);
-    int ordine[100];
-    for (int i = 0; i < total; i++) ordine[i] = i + 1;
-
-    std::random_shuffle(ordine, ordine + total - 1);
+    
     int punctaj = 0;
     char question1[1000];
     char *question;
     if (tdL.idThread != 0) start = curent;
-    number = index - start;
+    number = ind - start;
     if (write(tdL.cl, &number, sizeof(int)) <= 0)
     {
         printf("[Thread %d] ", tdL.idThread);
         perror("[Thread]Eroare la write() catre client.\n");
     }
 
-    for (int i = start; i < index; i++)
+    for (int i = start; i < ind; i++)
     {
         if (tdL.idThread == 0) curent = i;
         Question q = selectDatabase(ordine[i], db);

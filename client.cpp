@@ -103,12 +103,12 @@ main (int argc, char *argv[])
     system ("clear");
     printf
     ("QUIZZGAME\nIn jocul QuizzGame vei primi un set de intrebari la care "
-     "trebuie sa raspunzi.\nPentru fiecare intrebare ai la dispozitie 10 "
+     "trebuie sa raspunzi.\nPentru fiecare intrebare ai la dispozitie 30 "
      "secunde.\nLa finalul rundei vei afla scorul tau si cine a castigat.\n");
     printf ("Te rog sa iti introduci usernameul: \n");
     scanf ("%s", username);
     system ("clear");
-    username[20] = '\0';
+    username[19] = '\0';
     if (write (sd, username, 20) <= 0)
     {
         perror ("[client]Eroare la write() spre server.\n");
@@ -191,7 +191,7 @@ main (int argc, char *argv[])
         else
         {
             child = 1;
-            alarm (10);
+            alarm (30);
             wait (NULL);
             child = 0;
         }
@@ -210,7 +210,7 @@ main (int argc, char *argv[])
         {
             printf ("S-a pierdut conexiunea cu serverul.\n");
             exit (1);
-        } F
+        } 
 
         system ("clear");
         if (right == 'Y')
@@ -260,14 +260,15 @@ main (int argc, char *argv[])
     }
 
     if (win == punctaj)
-        printf ("Felicitari!%s, ai castigat jocul cu %d puncte.\n", username,
+        printf ("Felicitari! %s, ai castigat jocul cu %d puncte.\n", username,
                 punctaj);
     else
     {
-        printf ("Jocul este gata.%s a castigat jocul cu %d puncte.\n", winner,
+        printf ("Jocul este gata. %s a castigat jocul cu %d puncte.\n", winner,
                 win);
-        printf ("%s, ai obtinut %d puncte.Bravo!\n", username, punctaj);
+        printf ("%s, ai obtinut %d puncte. Bravo!\n", username, punctaj);
     }
     /* inchidem conexiunea, am terminat */
     close (sd);
 }
+ 
