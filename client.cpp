@@ -24,6 +24,7 @@ extern int errno;
 int port,sd;
 char answer;
 pid_t pid; 
+int child=0;
 
 
 
@@ -35,7 +36,8 @@ void handler2(int sig)
     {
       perror("[client]Eroare la write() spre server.\n");
     }
-  if(kill(pid,SIGUSR1)==-1) 
+  if(child==1)  
+    if(kill(pid,SIGUSR1)==-1) 
 	    	{
 	        perror("Eroare la transmiterea semnalului\n");
 	        exit(2);
@@ -163,8 +165,10 @@ int main(int argc, char *argv[])
      }
         else
         {
+          child=1;
           alarm(10);
           wait(NULL);
+          child=0;
         }
     
 
@@ -188,6 +192,7 @@ int main(int argc, char *argv[])
       
   }
   
+  printf("Te rugam asteapta pana termina si ceilalti jucatori.\n");
   if (read(sd, &win, sizeof(int)) < 0)
   {
     perror("[client]Eroare la read() de la server.\n");

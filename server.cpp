@@ -120,8 +120,7 @@ int main()
   /* servim in mod concurent clientii...folosind thread-uri */
   while (1)
   {
-  if(over==1)
-      i=0;
+  
     int client;
     socklen_t length = sizeof(from);
 
@@ -136,6 +135,14 @@ int main()
       perror("[server]Eroare la accept().\n");
       continue;
     }
+    if(over==1)
+      {
+        i=0;
+        players=0;
+        done=0;
+        over=0;
+        users.clear();
+      }
     /* s-a realizat conexiunea, se astepta mesajul */
     players++;
     char username[20];
@@ -167,7 +174,7 @@ int main()
 static void *treat(void *arg)
 {
   thData td((thData *)arg);
-  printf("Utilizatorul %s este conectat \n", td.username);
+  printf("Utilizatorul %s este conectat \n", users[td.idThread].getUsername());
   fflush(stdout);
   pthread_detach(pthread_self());
   raspunde((thData *)arg);
@@ -232,11 +239,11 @@ void raspunde(void *arg)
       if(varread==0)
       {
 
-        printf("Utilizatorul %s s-a deconectat\n",tdL.username);
+        printf("Utilizatorul %s s-a deconectat\n",users[tdL.idThread].getUsername());
         players--;
         pthread_exit(NULL);
       }
-    printf("Raspunsul utilizatorului %s: %c\n", tdL.username, answer);
+    printf("Raspunsul utilizatorului %s: %c\n", users[tdL.idThread].getUsername(), answer);
     char right = q.Verify(answer);
     if (right == 'Y')
       punctaj = punctaj + 1;
