@@ -15,9 +15,9 @@ char * Player::getUsername()
 
 void Player::setPunctaj(int punctaj)
 {
-     this->punctaj=punctaj;
+    this->punctaj=punctaj;
 }
-    
+
 
 int Player::getPunctaj()
 {

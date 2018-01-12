@@ -2,9 +2,9 @@
 
 int main()
 {
-     createDatabase();
-     sqlite3 *db =openDatabase();
-      createTable(db);
+    createDatabase();
+    sqlite3 *db =openDatabase();
+    createTable(db);
     populateDatabase(db);
     closeDatabase(db);
 }

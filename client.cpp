@@ -173,7 +173,6 @@ main (int argc, char *argv[])
         else if (pid == 0)
         {
             read (0, &answer, sizeof (char));
-            // read(0,&enter,sizeof(char));
             scanf ("%c%*c", &enter);
             fflush (stdin);
             if (answer == 'a' || answer == 'b' || answer == 'c'
