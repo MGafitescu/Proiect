@@ -136,6 +136,9 @@ int main()
             done = 0;
             over = 0;
             users.clear();
+            std::srand(unsigned(std::time(0)));
+            for (int i = 0; i < total; i++) ordine[i] = i + 1;
+            std::random_shuffle(ordine, ordine + total - 1);
         }
         /* s-a realizat conexiunea, se astepta mesajul */
         players++;
