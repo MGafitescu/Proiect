@@ -13,48 +13,69 @@
 #include <netdb.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 /* codul de eroare returnat de anumite apeluri */
 extern int errno;
 
 /* portul de conectare la server*/
-int port;
+int port,sd;
+char answer;
+pid_t pid; 
 
-void showQuestion(char question[1000],int nr)
+
+
+void handler2(int sig)
 {
   
-  for(int i=0;i<nr;i++)
-  {
-    if(question[i]=='~')
-    printf("\n");
-    else
-    printf("%c",question[i]);
-  }
-   printf("\n");
+  answer='O';
+  if (write(sd, &answer, sizeof(char)) <= 0)
+    {
+      perror("[client]Eroare la write() spre server.\n");
+    }
+  if(kill(pid,SIGUSR1)==-1) 
+	    	{
+	        perror("Eroare la transmiterea semnalului\n");
+	        exit(2);
+        }
+  
 }
-int main (int argc, char *argv[])
+
+void showQuestion(char question[1000], int nr,int i, int index)
 {
-  int sd;			// descriptorul de socket
-  struct sockaddr_in server;	// structura folosita pentru conectare 
-  		// mesajul trimis
-  char answer;
+  printf("Intrebare %d/%d:\n",i,index);
+  for (int i = 0; i < nr; i++)
+  {
+    if (question[i] == '~')
+      printf("\n");
+    else
+      printf("%c", question[i]);
+  }
+  printf("\n");
+}
+int main(int argc, char *argv[])
+{
+  struct sockaddr_in server; // structura folosita pentru conectare
+      // mesajul trimis
 
   /* exista toate argumentele in linia de comanda? */
   if (argc != 3)
-    {
-      printf ("Sintaxa: %s <adresa_server> <port>\n", argv[0]);
-      return -1;
-    }
+  {
+    printf("Sintaxa: %s <adresa_server> <port>\n", argv[0]);
+    return -1;
+  }
 
   /* stabilim portul */
-  port = atoi (argv[2]);
+  port = atoi(argv[2]);
 
   /* cream socketul */
-  if ((sd = socket (AF_INET, SOCK_STREAM, 0)) == -1)
-    {
-      perror ("Eroare la socket().\n");
-      return errno;
-    }
+  if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+  {
+    perror("Eroare la socket().\n");
+    return errno;
+  }
 
   /* umplem structura folosita pentru realizarea conexiunii cu serverul */
   /* familia socket-ului */
@@ -62,76 +83,136 @@ int main (int argc, char *argv[])
   /* adresa IP a serverului */
   server.sin_addr.s_addr = inet_addr(argv[1]);
   /* portul de conectare */
-  server.sin_port = htons (port);
-  
+  server.sin_port = htons(port);
+
   /* ne conectam la server */
-  if (connect (sd, (struct sockaddr *) &server,sizeof (struct sockaddr)) == -1)
-    {
-      perror ("[client]Eroare la connect().\n");
-      return errno;
-    }
-    char username[20];
-    printf("Bun venit!Introdu username: \n");
-    scanf("%s",username);
-    if (write (sd,username,20) <= 0)
-    {
-      perror ("[client]Eroare la write() spre server.\n");
-      return errno;
-    }
-    int nr,index,punctaj;
-    char enter;
-    if (read (sd, &index,sizeof(int)) < 0)
-    {
-      perror ("[client]Eroare la read() de la server.\n");
-      return errno;
-    }
-    for(int i=1;i<=index;i++)
-    {
+  if (connect(sd, (struct sockaddr *)&server, sizeof(struct sockaddr)) == -1)
+  {
+    perror("[client]Eroare la connect().\n");
+    return errno;
+  }
+
+
+  if(signal(SIGALRM,handler2)==SIG_ERR)
+	   	   {
+	   	   perror("Eroare la prinderea semnalului\n");
+	   	   exit(1);
+	   	   }	   	   
+
+
+  char username[20],winner[20];
+  int win;
+  system("clear");
+  printf("QUIZZGAME\nIn jocul QuizzGame vei primi un set de intrebari la care trebuie sa raspunzi.\nPentru fiecare intrebare ai la dispozitie 10 secunde.\nLa finalul rundei vei afla scorul tau si cine a castigat.\n");
+  printf("Te rog sa iti introduci usernameul: \n");
+  scanf("%s", username);
+  system("clear");
+  if (write(sd, username, 20) <= 0)
+  {
+    perror("[client]Eroare la write() spre server.\n");
+    return errno;
+    exit(1);
+  }
+  int nr, index, punctaj;
+  char enter;
+  if (read(sd, &index, sizeof(int)) < 0)
+  {
+    perror("[client]Eroare la read() de la server.\n");
+    return errno;
+    exit(1);
+  }
+  for (int i = 1; i <= index; i++)
+  {
     char question[1000];
-    if (read (sd, &nr,sizeof(int)) < 0)
+    if (read(sd, &nr, sizeof(int)) < 0)
     {
-      perror ("[client]Eroare la read() de la server.\n");
+      perror("[client]Eroare la read() de la server.\n");
       return errno;
+      exit(1);
     }
-    if (read (sd, question,nr) < 0)
+    if (read(sd, question, nr) < 0)
     {
-      perror ("[client]Eroare la read() de la server.\n");
+      perror("[client]Eroare la read() de la server.\n");
       return errno;
+      exit(1);
     }
 
-   showQuestion(question,nr);
-  /* citirea mesajului */
-  printf ("Care crezi ca e raspunsul?\n");
-  fflush (stdout);
-  read (0, &answer, sizeof(char));
-  read (0,&enter, sizeof(char));
+    showQuestion(question, nr,i,index);
+    /* citirea mesajului */
+    printf("Care crezi ca e raspunsul?\n");
+    fflush(stdout);
 
+ pid=fork();
+ if(pid==-1)
+	{
+	perror("Eroare la apelul fork");
+	return 1;
+	}
+	else
+	if(pid==0)
+		{
+     
+		      read(0, &answer, sizeof(char));
+          read(0, &enter, sizeof(char));
+          if (write(sd, &answer, sizeof(char)) <= 0)
+            {
+              perror("[client]Eroare la write() spre server.\n");
+              return errno;
+            }
+	    exit(1);
+     }
+        else
+        {
+          alarm(10);
+          wait(NULL);
+        }
+    
 
-  /* trimiterea mesajului la server */
-  if (write (sd,&answer,sizeof(char)) <= 0)
+    /* trimiterea mesajului la server */
+    
+    char right;
+    if (read(sd, &right, sizeof(char)) < 0)
     {
-      perror ("[client]Eroare la write() spre server.\n");
+      perror("[client]Eroare la read() de la server.\n");
       return errno;
+      exit(1);
     }
-  char right;  
-  if (read (sd, &right,sizeof(char)) < 0)
-    {
-      perror ("[client]Eroare la read() de la server.\n");
-      return errno;
-    }
-   if(right=='Y')
-   printf("Raspunsul este corect.\n\n");
-   else
-   printf("Raspunsul este gresit.\n\n"); 
-    }
-
-
-    if (read (sd, &punctaj,sizeof(int)) < 0)
-    {
-      perror ("[client]Eroare la read() de la server.\n");
-      return errno;
-    }
-    printf("Jocul este gata.%s, ai obtinut %d din %d puncte.Bravo!\n",username,punctaj,index);
-  /* inchidem conexiunea, am terminat */
-  close (sd);
+    system("clear");
+    if (right == 'Y')
+      printf("Raspunsul este corect.\n\n");
+    else
+     if(right == 'O')
+      printf("Imi pare rau,a expirat timpul pentru  intrebare.\n\n");
+      else
+      printf("Raspunsul este gresit.\n\n");
+      
+  }
+  
+  if (read(sd, &win, sizeof(int)) < 0)
+  {
+    perror("[client]Eroare la read() de la server.\n");
+    return errno;
+    exit(1);
+  }
+  if (read(sd, &winner, 20) < 0)
+  {
+    perror("[client]Eroare la read() de la server.\n");
+    return errno;
+    exit(1);
+  } 
+  if (read(sd, &punctaj, sizeof(int)) < 0)
+  {
+    perror("[client]Eroare la read() de la server.\n");
+    return errno;
+    exit(1);
+  }
+  if(win==punctaj)
+  printf("Felicitari!%s, ai castigat jocul cu %d puncte.\n",username,punctaj);
+  else
+  {
+  printf("Jocul este gata.%s a castigat jocul cu %d puncte.\n",winner,win);
+  printf("%s, ai obtinut %d puncte.Bravo!\n", username, punctaj);
+  }
+/* inchidem conexiunea, am terminat */
+  close(sd);
 }

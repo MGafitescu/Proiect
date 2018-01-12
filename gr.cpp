@@ -1,16 +1,19 @@
 #include <TGUI/TGUI.hpp>
 int logged=0;
-
+int i=0;
 void login(tgui::EditBox::Ptr username)
 {
     std::cout << "Username: " << username->getText().toAnsiString() << std::endl;
-    logged=1;
+    i++;
+    logged=i;
 }
 
 void login1()
 {
-    printf("Apasat");
-logged=2;
+    std::cout << "Apasat \n "  <<i<< std::endl;
+    i++;
+    
+    logged=i;
 }
 void loadWidgets( tgui::Gui& gui )
 {
@@ -117,18 +120,25 @@ int main()
     // Create the window
     sf::RenderWindow window(sf::VideoMode(800, 600), "QuizzGame");
     tgui::Gui gui(window);
-
+ 
+            char intrebare[100]="Intrebare1";
+        char a[100]="A1";
+        char b[100]="B1";
+        char c[100]="C1";
+        char d[100]="D1";
     try
     {
         // Load the widgets
         loadWidgets(gui);
+        
     }
     catch (const tgui::Exception& e)
     {
         std::cerr << "Failed to load TGUI widgets: " << e.what() << std::endl;
         return 1;
     }
-
+    window.setVerticalSyncEnabled(true);
+    window.setFramerateLimit(0);
     // Main loop
     while (window.isOpen())
     {
@@ -146,17 +156,39 @@ int main()
                 gui.setView(window.getView());
             }
 
-            char intrebare[100]="Intrebare1";
-        char a[100]="A";
-        char b[100]="B";
-        char c[100]="C";
-        char d[100]="D";
         if(logged==1)
-        loadWidgets2(gui,intrebare,a,b,c,d);
-        strcpy(intrebare,"Intrebare 2");
+        {
+            gui.removeAllWidgets();
+            loadWidgets2(gui,intrebare,a,b,c,d);
+            logged=0;
+        }
+       
+        
         if(logged==2)
+        {
+         strcpy(intrebare,"Intrebare 2");
+        strcpy(a,"A2");
+        strcpy(b,"B2");
+        strcpy(c,"C2");
+        strcpy(d,"D2");
+            gui.removeAllWidgets();
       loadWidgets2(gui,intrebare,a,b,c,d);
-            // Pass the event to all the widgets
+      logged=0;
+        }
+        
+        
+        if(logged==3)
+        {
+        strcpy(intrebare,"Intrebare 3");
+        strcpy(a,"A3");
+        strcpy(b,"B3");
+        strcpy(c,"C3");
+        strcpy(d,"D3");
+            gui.removeAllWidgets();
+      loadWidgets2(gui,intrebare,a,b,c,d);
+      logged=0;
+        }
+                    // Pass the event to all the widgets
             gui.handleEvent(event);
         }
 

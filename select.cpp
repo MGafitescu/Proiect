@@ -4,7 +4,6 @@
 #include <string.h>
 #include "select.h"
 
-
 Question::Question()
 {
     this->id = 0;
@@ -34,31 +33,33 @@ void Question::Print()
     else
         printf("%d.%s\nA:%s\nB:%s\nC:%s\nD:%s\n\n\n", id, ques, a, b, c, d);
 }
-    
-    char* Question::Prepare()
-    {
-         
-         char *question=NULL;
-         question=new char[1000];
-         strcpy(question,this->ques);
-        strcat(question,"~A.");
-        strcat(question,this->a);
-        strcat(question,"~B.");
-         strcat(question,this->b);
-        strcat(question,"~C.");
-         strcat(question,this->c);
-        strcat(question,"~D.");
-         strcat(question,this->d);
-         strcat(question,"\0");
-         return question;
-        }
-        
+
+char *Question::Prepare()
+{
+
+    char *question = NULL;
+    question = new char[1000];
+    strcpy(question, this->ques);
+    strcat(question, "~A.");
+    strcat(question, this->a);
+    strcat(question, "~B.");
+    strcat(question, this->b);
+    strcat(question, "~C.");
+    strcat(question, this->c);
+    strcat(question, "~D.");
+    strcat(question, this->d);
+    strcat(question, "\0");
+    return question;
+}
+
 char Question::Verify(char ans)
 {
-    if(this->correct[0]==ans)
-    return 'Y';
+    if (this->correct[0] == ans)
+        return 'Y';
+    else if (ans == 'O')
+        return 'O';
     else
-    return 'N';
+        return 'N';
 }
 
 sqlite3 *openDatabase()

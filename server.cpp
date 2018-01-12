@@ -23,41 +23,44 @@
 #include <ctime>        
 #include <cstdlib>
 #include "select.h"
+#include "player.h"
+#include <deque>
+#include "thread.h"
 /* portul folosit */
 #define PORT 2907
 
+
 /* codul de eroare returnat de anumite apeluri */
 extern int errno;
-int curent=0;
+int curent=1;
 sqlite3* db;
-int done=0;
-int players=0;
-class thData
-{
+int done=0,over=0;
+int players=0,win=0;
+char winner[20];
+std::deque<Player> users;
 
-public:
-  int idThread; //id-ul thread-ului tinut in evidenta de acest program
-  int cl;       //descriptorul intors de accept
-  char username[20];
-public:
-  thData(int idThread, int cl, char username[20]);
-  thData(thData *ptr);
-};
-thData::thData(int idThread, int cl, char username[20])
-{
-  this->idThread = idThread;
-  this->cl = cl;
-  strcpy(this->username,username);
-}
-
-thData::thData(thData *ptr)
-{
-  this->idThread = ptr->idThread;
-  this->cl = ptr->cl;
-  strcpy(this->username,ptr->username);
-}
 static void *treat(void *); /* functia executata de fiecare thread ce realizeaza comunicarea cu clientii */
 void raspunde(void *);
+
+void gameOver( int sig)
+{
+over=1;
+players=0;
+int max=0;
+for(int i=0;i<users.size();i++)
+{
+  if(max<users[i].getPunctaj())
+    max=users[i].getPunctaj();
+  }
+
+  win=max;
+for(int i=0;i<users.size();i++)
+{
+  if(win==users[i].getPunctaj())
+    strcpy(winner,users[i].getUsername());
+}
+
+}
 
 int main()
 {
@@ -69,7 +72,13 @@ int main()
   pthread_t th[100]; //Identificatorii thread-urilor care se vor crea
   int i = 0;
   db = openDatabase();
-
+  
+  if(signal(SIGUSR1,gameOver)==SIG_ERR)
+	   	   {
+	   	   perror("Eroare la prinderea semnalului\n");
+	   	   exit(1);
+        }
+                
   /* crearea unui socket */
   if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
   {
@@ -111,10 +120,8 @@ int main()
   /* servim in mod concurent clientii...folosind thread-uri */
   while (1)
   {
-  if(done==players)
-   { i=0;
-    printf("Gata jocul");
-   }
+  if(over==1)
+      i=0;
     int client;
     socklen_t length = sizeof(from);
 
@@ -132,6 +139,10 @@ int main()
     /* s-a realizat conexiunea, se astepta mesajul */
     players++;
     char username[20];
+    strcpy(username,"player");
+     thData td(i++, client,username);
+    thData *ptr = &td;
+    pthread_create(&th[i], NULL, &treat, ptr);
     int varread=read(client, username, 20) ;
     if (varread<0)
     { 
@@ -143,9 +154,10 @@ int main()
         printf("Utilizatorul %s s-a deconectat",username);
         players--;
       }
-    thData td(i++, client,username);
-    thData *ptr = &td;
-    pthread_create(&th[i], NULL, &treat, ptr);
+      Player player(players,username);
+      users.push_back(player);
+
+   
 
     
   } //while
@@ -187,8 +199,6 @@ void raspunde(void *arg)
     perror("[Thread]Eroare la write() catre client.\n");
   }
  
-  
-   
 
   for (int i = start; i<index; i++)
   {
@@ -222,7 +232,7 @@ void raspunde(void *arg)
       if(varread==0)
       {
 
-        printf("Utilizatorul %s s-a deconectat",tdL.username);
+        printf("Utilizatorul %s s-a deconectat\n",tdL.username);
         players--;
         pthread_exit(NULL);
       }
@@ -237,6 +247,26 @@ void raspunde(void *arg)
     }
   }
   done++;
+  users[tdL.idThread].setPunctaj(punctaj);
+  if(done==players)
+      if(kill(getpid(),SIGUSR1)==-1) 
+	    	{
+	        perror("Eroare la transmiterea semnalului\n");
+	        exit(2);
+        }
+               
+  while(over==0);      
+
+  if (write(tdL.cl, &win, sizeof(int)) <= 0)
+    {
+      printf("[Thread %d] ", tdL.idThread);
+      perror("[Thread]Eroare la write() catre client.\n");
+    }
+  if (write(tdL.cl, &winner, 20) <= 0)
+    {
+      printf("[Thread %d] ", tdL.idThread);
+      perror("[Thread]Eroare la write() catre client.\n");
+    }  
   if (write(tdL.cl, &punctaj, sizeof(int)) <= 0)
     {
       printf("[Thread %d] ", tdL.idThread);
