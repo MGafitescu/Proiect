@@ -41,7 +41,22 @@ int populateDatabase(sqlite3 *db)
           "VALUES (4, 'Portugheza este vorbita in?','Columbia', 'Argentina', 'Ecuador', 'Brazilia', 'D' ); ";    
     insertRow(sql,db);
     sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
-          "VALUES (5, 'Cati dinti are o persoana adulta?','28', '42', '32', '34', 'C' ); ";    
+          "VALUES (5, 'Cel mai lung fluviu?','Amazon', 'Nil', 'Vistula', 'Dunare', 'A' ); ";    
+    insertRow(sql,db);
+     sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (6, 'Cati dinti are o persoana adulta?','28', '42', '32', '34', 'C' ); ";    
+    insertRow(sql,db);
+     sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (7, 'Care a fost primul satelit artificial?','Voyager', 'Sputnik', 'Curiosity', 'Dawn', 'B' ); ";    
+    insertRow(sql,db);
+     sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (8, 'Cea mai apropiata stea de Soare?','Deneb', 'Altair', 'Vega', 'Alpha Centauri', 'D' ); ";    
+    insertRow(sql,db);
+     sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (9, 'Prima racheta refolosibila din lume?','Arianne 4', 'Saturn V', 'Space Shuttle', 'Falcon 9', 'D' ); ";    
+    insertRow(sql,db);
+     sql = "INSERT INTO QUESTIONS (ID,QUESTION,A,B,C,D,CORRECT) "
+          "VALUES (10, 'Primul om pe luna?','Buzz Aldrin', 'Neil Armstrong', 'Yuri Gagarin', 'John Glenn', 'B' ); ";    
     insertRow(sql,db);
    return 0;   
 }
